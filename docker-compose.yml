@@ -1,0 +1,47 @@
+version: '3.4'
+services:
+
+  jirasd:
+    image: atlassian/jira-servicedesk:${JIRA_SD_VERSION}
+    container_name: jirasd
+    restart: always
+    links:
+      - database
+    ports:
+      - 8080:8080
+    volumes:
+      - jirasd-data:/var/atlassian/jira
+
+  confluence:
+    image: atlassian/confluence-server:${CONFL_VERSION}
+    container_name: confluence
+    restart: always
+    links:
+      - database
+    ports:
+      - 8090:8090
+      - 8091:8091
+    volumes:
+      - confluence-data:/var/atlassian/confluence
+
+  database:
+    image: postgres:${DB_VERSION}
+    container_name: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=TXsm9YT&Vr
+      - POSTGRES_USER=postgres
+      - DB_NAMES=jirasd confluence
+    volumes:
+      - database-data:/var/lib/postgresql/data
+      - ${PWD}/scripts/create_db.sh:/docker-entrypoint-initdb.d/20-create_db.sh
+
+volumes:
+  jirasd-data:
+    external: false
+  confluence-data:
+    external: false
+  database-data:
+    external: false
